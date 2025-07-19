@@ -1,7 +1,7 @@
 "use client";
 
-import { createChart, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
-import { useEffect, useRef } from 'react';
+import { createChart, CrosshairMode, CandlestickSeries, Time } from 'lightweight-charts';
+import { useEffect, useRef, useMemo } from 'react';
 import { useGasStore } from '../lib/store';
 import type { ChainId, GasPoint } from '../lib/types';
 
@@ -38,13 +38,13 @@ function createCandlestickData(gasHistory: GasPoint[]) {
   return Object.entries(intervals).map(([timestamp, points]) => {
     const prices = points.map(p => p.close);
     return {
-      time: Math.floor(parseInt(timestamp) / 1000),
+      time: Math.floor(parseInt(timestamp) / 1000) as Time,
       open: points[0].open,
       high: Math.max(...prices),
       low: Math.min(...prices),
       close: points[points.length - 1].close
     };
-  }).sort((a, b) => a.time - b.time);
+  }).sort((a, b) => (a.time as number) - (b.time as number));
 }
 
 const DEFAULT_CHAIN_COLORS: Record<ChainId, string> = {
@@ -58,7 +58,7 @@ export function CandlestickChart({ chain, chains, chainColors }: CandlestickChar
   const store = useGasStore();
 
   // Support both single and multi-chain mode
-  const chainList: ChainId[] = chains || (chain ? [chain] : ['ethereum']);
+  const chainList = useMemo(() => chains || (chain ? [chain] : ['ethereum']), [chains, chain]);
   const colors = chainColors || DEFAULT_CHAIN_COLORS;
 
   useEffect(() => {
