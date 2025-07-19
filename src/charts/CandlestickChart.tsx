@@ -8,7 +8,7 @@ import type { ChainId, GasPoint } from '../lib/types';
 interface CandlestickChartProps {
   chain?: ChainId;
   chains?: ChainId[];
-  chainColors?: Record<ChainId, string>;
+  chainColors?: Partial<Record<ChainId, string>>;
 }
 
 // Convert gas history to OHLC candlestick data
