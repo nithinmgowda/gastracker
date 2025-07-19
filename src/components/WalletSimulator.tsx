@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useGasStore } from "../lib/store";
-import type { ChainId } from "../lib/types";
 
 export const WalletSimulator: React.FC = () => {
   const [amount, setAmount] = useState<number>(0.5); // Transaction value in ETH/MATIC/etc.

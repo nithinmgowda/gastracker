@@ -4,11 +4,6 @@ import React from "react";
 import { useGasStore } from "../lib/store";
 import type { ChainId } from "../lib/types";
 
-const CHAIN_ICONS: Record<ChainId, string> = {
-  ethereum: "🟦",
-  polygon: "🟪",
-  arbitrum: "🟦"
-};
 const CHAIN_COLORS: Record<ChainId, string> = {
   ethereum: "#627EEA",
   polygon: "#8247E5",

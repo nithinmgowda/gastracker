@@ -1,23 +1,22 @@
 "use client";
 
-import { createChart, ColorType, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
+import { createChart, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
 import { useEffect, useRef } from 'react';
 import { useGasStore } from '../lib/store';
-import type { ChainId } from '../lib/types';
+import type { ChainId, GasPoint } from '../lib/types';
 
 interface CandlestickChartProps {
   chain?: ChainId;
   chains?: ChainId[];
-  chainColor?: string;
   chainColors?: Record<ChainId, string>;
 }
 
 // Convert gas history to OHLC candlestick data
-function createCandlestickData(gasHistory: any[]) {
+function createCandlestickData(gasHistory: GasPoint[]) {
   if (gasHistory.length === 0) return [];
 
   // Group data into 15-minute intervals
-  const intervals: { [key: string]: any[] } = {};
+  const intervals: { [key: string]: GasPoint[] } = {};
   
   gasHistory.forEach(point => {
     const timestamp = new Date(point.timestamp);
@@ -39,7 +38,7 @@ function createCandlestickData(gasHistory: any[]) {
   return Object.entries(intervals).map(([timestamp, points]) => {
     const prices = points.map(p => p.close);
     return {
-      time: Math.floor(parseInt(timestamp) / 1000) as any, // Convert to seconds for lightweight-charts
+      time: Math.floor(parseInt(timestamp) / 1000),
       open: points[0].open,
       high: Math.max(...prices),
       low: Math.min(...prices),
@@ -54,7 +53,7 @@ const DEFAULT_CHAIN_COLORS: Record<ChainId, string> = {
   arbitrum: '#28A0F0',
 };
 
-export function CandlestickChart({ chain, chains, chainColor, chainColors }: CandlestickChartProps) {
+export function CandlestickChart({ chain, chains, chainColors }: CandlestickChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const store = useGasStore();
 
@@ -86,7 +85,7 @@ export function CandlestickChart({ chain, chains, chainColor, chainColors }: Can
     });
 
     // Add a candlestick series for each chain
-    const seriesList = chainList.map((c) => {
+    chainList.forEach((c) => {
       const color = colors[c] || '#888';
       const s = chart.addSeries(CandlestickSeries, {
         upColor: color,
@@ -100,7 +99,6 @@ export function CandlestickChart({ chain, chains, chainColor, chainColors }: Can
       if (candlestickData.length > 0) {
         s.setData(candlestickData);
       }
-      return { chain: c, color, series: s, hasData: candlestickData.length > 0 };
     });
 
     chart.timeScale().fitContent();
@@ -108,7 +106,7 @@ export function CandlestickChart({ chain, chains, chainColor, chainColors }: Can
     return () => {
       chart.remove();
     };
-  }, [JSON.stringify(store.chains), JSON.stringify(chainList), JSON.stringify(chainColors)]);
+  }, [chainList, colors, store.chains]);
 
   // Show a legend and loading state
   const hasAnyData = chainList.some((c) => store.chains[c]?.history?.length > 0);

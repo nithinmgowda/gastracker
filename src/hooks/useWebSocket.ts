@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { WebSocketProvider } from '@ethersproject/providers'
 import { useGasStore } from '../lib/store'
-import { ChainId } from '../lib/types'
+import { ChainId, GasPrice } from '../lib/types'
 
 // RPC URLs - use environment variables for Infura endpoints
 const RPC_URLS = {
@@ -11,18 +11,18 @@ const RPC_URLS = {
 }
 
 export function useWebSocketProvider() {
-  const providers = useRef<Partial<Record<ChainId, WebSocketProvider>>>({})
-  const updateGasPrice = useGasStore(state => state.updateGasPrice)
-  const updateEthPrice = useGasStore(state => state.updateEthPrice)
-  const mode = useGasStore(state => state.mode)
+  const providers = useRef<Partial<Record<ChainId, WebSocketProvider>>>({});
+  const updateGasPrice = useGasStore(state => state.updateGasPrice);
+  const updateEthPrice = useGasStore(state => state.updateEthPrice);
+  const mode = useGasStore(state => state.mode);
 
   useEffect(() => {
-    if (mode !== 'live') return
+    if (mode !== 'live') return;
 
     const setupProvider = async (chainId: ChainId, url: string) => {
       try {
-        const provider = new WebSocketProvider(url)
-        providers.current[chainId] = provider
+        const provider = new WebSocketProvider(url);
+        providers.current[chainId] = provider;
 
         // Handle new blocks
         provider.on('block', async (blockNumber) => {
@@ -30,67 +30,67 @@ export function useWebSocketProvider() {
             const [block, feeData] = await Promise.all([
               provider.getBlock(blockNumber),
               provider.send('eth_maxPriorityFeePerGas', [])
-            ])
+            ]);
 
-            const gasPrice: any = {
+            const gasPrice: GasPrice = {
               baseFee: block.baseFeePerGas?.toNumber() ?? 0,
               priorityFee: Number(feeData) / 1e9, // Convert wei to gwei
               timestamp: block.timestamp * 1000
-            }
+            };
 
-            updateGasPrice(chainId, gasPrice)
+            updateGasPrice(chainId, gasPrice);
           } catch (error) {
-            console.error(`Error fetching data for ${chainId}:`, error)
+            console.error(`Error fetching data for ${chainId}:`, error);
           }
-        })
+        });
 
         // Handle WebSocket errors and reconnect
-        provider.on('error', (error: any) => {
-          console.error(`WebSocket error for ${chainId}:`, error)
-          setTimeout(() => setupProvider(chainId, url), 5000)
-        })
+        provider.on('error', (error: Error) => {
+          console.error(`WebSocket error for ${chainId}:`, error);
+          setTimeout(() => setupProvider(chainId, url), 5000);
+        });
 
         // Initial data fetch
         try {
           const [block, feeData] = await Promise.all([
             provider.getBlock('latest'),
             provider.send('eth_maxPriorityFeePerGas', [])
-          ])
+          ]);
 
-          const gasPrice: any = {
+          const gasPrice: GasPrice = {
             baseFee: block.baseFeePerGas?.toNumber() ?? 0,
             priorityFee: Number(feeData) / 1e9, // Convert wei to gwei
             timestamp: block.timestamp * 1000
-          }
+          };
 
-          updateGasPrice(chainId, gasPrice)
+          updateGasPrice(chainId, gasPrice);
         } catch (error) {
-          console.error(`Error fetching initial data for ${chainId}:`, error)
+          console.error(`Error fetching initial data for ${chainId}:`, error);
         }
 
       } catch (error) {
-        console.error(`Failed to setup provider for ${chainId}:`, error)
+        console.error(`Failed to setup provider for ${chainId}:`, error);
         // Retry after 5 seconds
-        setTimeout(() => setupProvider(chainId, url), 5000)
+        setTimeout(() => setupProvider(chainId, url), 5000);
       }
-    }
+    };
 
     // Initialize providers for all chains
     Object.entries(RPC_URLS).forEach(([chainId, url]) => {
-      setupProvider(chainId as ChainId, url as string)
-    })
+      setupProvider(chainId as ChainId, url as string);
+    });
 
     return () => {
       // Cleanup providers
       Object.values(providers.current).forEach(provider => {
         try {
-          provider?.removeAllListeners()
-          provider?.destroy?.()
+          provider?.removeAllListeners();
+          provider?.destroy?.();
         } catch (error) {
-          console.error('Error during provider cleanup:', error)
+          console.error('Error during provider cleanup:', error);
         }
-      })
-      providers.current = {}
-    }
-  }, [mode, updateGasPrice, updateEthPrice])
+      });
+      providers.current = {};
+    };
+  }, [mode, updateGasPrice, updateEthPrice]);
 }

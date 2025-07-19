@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { GasStore, ChainId, GasPrice } from './types'
+import { GasStore } from './types'
 
 const DEFAULT_GAS_STATE = {
   currentGas: { baseFee: 0, priorityFee: 0, timestamp: Date.now() },
