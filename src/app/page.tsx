@@ -48,7 +48,7 @@ export default function Home() {
             </div>
           </div>
           <div className="bg-gray-900 rounded-xl shadow-lg border border-gray-800 p-4 min-h-[340px] flex items-center justify-center">
-            <CandlestickChart chain={selectedChain} chainColor={CHAIN_COLORS[selectedChain]} />
+            <CandlestickChart chain={selectedChain} chainColors={{ [selectedChain]: CHAIN_COLORS[selectedChain] }} />
           </div>
           {/* Multi-chain comparison chart */}
           <div className="mt-10">

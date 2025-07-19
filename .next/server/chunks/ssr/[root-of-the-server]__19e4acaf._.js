@@ -985,7 +985,9 @@ function Home() {
                                 className: "jsx-b790e21b3a5a4764" + " " + "bg-gray-900 rounded-xl shadow-lg border border-gray-800 p-4 min-h-[340px] flex items-center justify-center",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$charts$2f$CandlestickChart$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CandlestickChart"], {
                                     chain: selectedChain,
-                                    chainColor: CHAIN_COLORS[selectedChain]
+                                    chainColors: {
+                                        [selectedChain]: CHAIN_COLORS[selectedChain]
+                                    }
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
                                     lineNumber: 51,
